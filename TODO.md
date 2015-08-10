@@ -3,5 +3,5 @@
 
 # New features to be implemented
 * Change quotes, load it from twitter or web service weekly, monthly or dialy
-* Add Accelerometer taps interaction.
+* Add Accelerometer taps calendar interaction.
 * Add window with Calendar.
