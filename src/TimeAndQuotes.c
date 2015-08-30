@@ -1,23 +1,39 @@
 #include <pebble.h>
 
+#define PHRASE_TO_DISPLAY_KEY 1
+
 #define BAR_DATETIME_HEIGTH 35
 #define BAR_AUTHOR 20
 
 #define BAR_CALENDAR_TOP_HEIGTH 30
+#define CALENDAR_DISPLAY_TIME 2500
 
 static Window    *s_main_window;
 static Window    *s_calendar_window;
+
 static TextLayer *s_quote_layer;
 static TextLayer *s_quote_author_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_time_layer;
+static Layer     *s_calendar_layer;
 
+static int phrase_to_display = 0;
 
-static void print_quote( const char *, const char * );
+const char * const phrase_list[] = {
+  "Porque morir no duele, lo que duele es el olvido.", "Subcomandante Marcos",
+  "Somos el color de la tierra.", "Subcomandante Marcos.",
+  "Tanto si crees que puedes hacerlo, como si no, en los dos casos tienes razón.", "Henry Ford",
+  "Quien controla el presente controla el pasado y quien controla el pasado controlara el futuro.", "George Orwell",
+  "Lo supremo en el arte de la guerra consiste en someter al enemigo sin darle batalla.", "Sun-Tzu",
+  NULL
+};
+
+static void update_quote( bool next_quote );
 static void update_time();
 static void tick_handler( struct tm *, TimeUnits );
 static void tap_handler( AccelAxisType , int32_t );
 static void timer_handler( void * );
+static void calendar_layer_update_callback( Layer *, GContext *);
 
 static void main_window_load( Window *window ) {
   // Get the root layer and their bounds
@@ -48,11 +64,21 @@ static void main_window_load( Window *window ) {
   text_layer_set_text_alignment( s_time_layer, GTextAlignmentCenter );
   layer_add_child( window_get_root_layer( window ), text_layer_get_layer( s_time_layer ) );
 
-  // print_quote( "Porque morir no duele, lo que duele es el olvido.", "Subcomandante Marcos" );
-  print_quote( "Somos el color de la tierra.", "Subcomandante Marcos" );
+  phrase_to_display = persist_exists( PHRASE_TO_DISPLAY_KEY ) ? persist_read_int( PHRASE_TO_DISPLAY_KEY ) : 0;
+
+  update_quote( false );
+  update_time();
 }
 
-static void print_quote( const char * quote, const char * author ) {
+static void update_quote( bool next_quote ) {
+  int count = 0;
+  while( phrase_list[count] != NULL ) count++;
+
+  if ( phrase_to_display > count - 1 ) phrase_to_display = 0;
+
+  const char * quote  = phrase_list[ phrase_to_display ];
+  const char * author = phrase_list[ phrase_to_display + 1 ];
+
   // Count quote lenght
   int quote_len = strlen( quote );
   GFont quote_font;
@@ -68,6 +94,9 @@ static void print_quote( const char * quote, const char * author ) {
   // Print the quote and author
   text_layer_set_text( s_quote_layer, quote );
   text_layer_set_text( s_quote_author_layer, author);
+
+  if ( next_quote == true )
+    phrase_to_display += 2;
 }
 
 static void update_time() {
@@ -90,7 +119,16 @@ static void update_time() {
 }
 
 static void tick_handler( struct tm *tick_time, TimeUnits units_changed ) {
-  update_time();
+  switch ( units_changed ) {
+    case DAY_UNIT:
+      update_quote( true );
+      break;
+    case MONTH_UNIT:
+      // update_calendar();
+      break;
+    default:
+      update_time();
+  }
 }
 
 static void tap_handler( AccelAxisType axis, int32_t direction ) {
@@ -105,10 +143,15 @@ static void tap_handler( AccelAxisType axis, int32_t direction ) {
 
 static void main_window_unload( Window *window ) {
   // Destroy TextLayers
+
+  persist_write_int( PHRASE_TO_DISPLAY_KEY, phrase_to_display );
+
   text_layer_destroy( s_quote_layer );
   text_layer_destroy( s_quote_author_layer );
   text_layer_destroy( s_time_layer );
 }
+
+
 
 
 
@@ -120,10 +163,10 @@ static void calendar_window_load( Window *window ) {
   struct tm *tick_time = localtime( &temp );
 
   static char date[] = "00 Month Name Year";
-  strftime( date, sizeof( "00 Month Name" ), "%d %B %y", tick_time );
+  strftime( date, sizeof( "00 Month Name" ), "%B %Y", tick_time );
 
   // Registry timer to close calendar window
-  app_timer_register( 2000, timer_handler, NULL );
+  app_timer_register( CALENDAR_DISPLAY_TIME, timer_handler, NULL );
 
   // Create date TextLayer
   s_date_layer = text_layer_create( GRect( 0, 0, bounds.size.w, BAR_CALENDAR_TOP_HEIGTH ) );
@@ -133,6 +176,35 @@ static void calendar_window_load( Window *window ) {
   text_layer_set_font( s_date_layer, fonts_get_system_font( FONT_KEY_GOTHIC_24_BOLD ) );
   text_layer_set_text_alignment( s_date_layer, GTextAlignmentCenter );
   layer_add_child( window_get_root_layer( window ) , text_layer_get_layer( s_date_layer ) );
+
+  s_calendar_layer = layer_create( GRect( 0, BAR_CALENDAR_TOP_HEIGTH, bounds.size.w, bounds.size.h - BAR_CALENDAR_TOP_HEIGTH ) );
+  layer_set_update_proc( s_calendar_layer, calendar_layer_update_callback );
+  layer_add_child( window_get_root_layer( window ), s_calendar_layer );
+}
+
+static void calendar_layer_update_callback(Layer *layer, GContext *ctx) {
+  GPoint p1, p2;
+  GRect frame, bounds = layer_get_bounds(layer);
+
+  int week_height = bounds.size.h / 7;
+  int day_width   = bounds.size.w / 7;
+
+  graphics_context_set_stroke_color(ctx, GColorBlack);
+  for ( int i = 1; i <= 7; i++ ) {
+    p1 = GPoint( 0, week_height * i );
+    p2 = GPoint( bounds.size.w, week_height * i );
+    graphics_draw_line( ctx, p1, p2 );
+
+    if ( i == 7 ) { // Draw days init
+      frame = GRect( 0, week_height * (i -1), bounds.size.w , week_height * (i -1) );
+      graphics_context_set_text_color(ctx, GColorBlack);
+      graphics_fill_rect( ctx, frame, 0, GCornerNone);
+    }
+
+    for ( int j = 0; j<= 7; j++) {
+      // Print days
+    }
+  }
 }
 
 static void calendar_window_unload( Window *window) {
@@ -154,7 +226,7 @@ static void init() {
   s_calendar_window = window_create();
 
   // Register services
-  tick_timer_service_subscribe( MINUTE_UNIT, tick_handler );
+  tick_timer_service_subscribe( MINUTE_UNIT | DAY_UNIT | MONTH_UNIT, tick_handler );
   accel_tap_service_subscribe( tap_handler );
   // ... more services
 
@@ -170,6 +242,7 @@ static void init() {
   } );
 
   // Show the Window on the watch, with animated=true
+  // window_stack_push( s_main_window, true );
   window_stack_push( s_main_window, true );
 }
 

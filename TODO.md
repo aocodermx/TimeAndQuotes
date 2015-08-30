@@ -5,3 +5,4 @@
 * Change quotes, load it from twitter or web service weekly, monthly or dialy
 * Add Accelerometer taps calendar interaction.
 * Add window with Calendar.
+* Create a c file for each window
