@@ -5,18 +5,24 @@
 #define BAR_DATETIME_HEIGTH   35
 #define BAR_AUTHOR            20
 #define PHRASE_TO_DISPLAY_KEY 1
+#define PHRASE_DAY_KEY        2
 
 static Window    *s_main_window;
 static TextLayer *s_quote_layer;
 static TextLayer *s_quote_author_layer;
 static TextLayer *s_time_layer;
+static int phrase_day            = 0;
 static int phrase_to_display     = 0;
 const char * const phrase_list[] = {
+  "Si no quieres una respuesta sarcástica, entonces no hagas una pregunta estúpida.", "Friedrich Nietzsche",
   "Porque morir no duele, lo que duele es el olvido.", "Subcomandante Marcos",
-  "Somos el color de la tierra.", "Subcomandante Marcos.",
   "Tanto si crees que puedes hacerlo, como si no, en los dos casos tienes razón.", "Henry Ford",
   "Quien controla el presente controla el pasado y quien controla el pasado controlara el futuro.", "George Orwell",
   "Lo supremo en el arte de la guerra consiste en someter al enemigo sin darle batalla.", "Sun-Tzu",
+  "Hazte amigo del dolor, y nunca te encontraras solo.", "Ken Chlouber",
+  "El que se queda haciendo siempre lo mismo, a la larga se queda atras.", "Andres Oppenheimer",
+  "Somos el color de la tierra.", "Subcomandante Marcos.",
+  "No podemos resolver nuestros problemas con el mismo pensamiento que usamos cuando los creamos", "Albert Einstein",
   NULL
 };
 
@@ -48,6 +54,8 @@ static void main_window_load ( Window *window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds        = layer_get_bounds      ( window_layer );
 
+  accel_tap_service_subscribe  ( tap_handler );
+
   // Create quote TextLayer and add it to Window hierarchy
   s_quote_layer = text_layer_create ( GRect ( 0, 0, bounds.size.w, bounds.size.h - BAR_DATETIME_HEIGTH ) );
   text_layer_set_background_color ( s_quote_layer, GColorBlack );
@@ -72,6 +80,7 @@ static void main_window_load ( Window *window ) {
   layer_add_child ( window_get_root_layer ( window ), text_layer_get_layer ( s_time_layer ) );
 
   phrase_to_display = persist_exists ( PHRASE_TO_DISPLAY_KEY ) ? persist_read_int ( PHRASE_TO_DISPLAY_KEY ) : 0;
+  phrase_day        = persist_exists ( PHRASE_DAY_KEY ) ? persist_read_int ( PHRASE_DAY_KEY ): 0;
 
   update_quote ( false );
   update_time();
@@ -117,20 +126,29 @@ static void update_time ( ) {
 }
 
 static void tick_handler ( struct tm *tick_time, TimeUnits units_changed ) {
+  phrase_day = persist_exists ( PHRASE_DAY_KEY ) ? persist_read_int ( PHRASE_DAY_KEY ): 0;
+  if ( phrase_day != tick_time->tm_mday ) {
+    update_quote ( true );
+    phrase_day = tick_time->tm_mday;
+    persist_write_int ( PHRASE_DAY_KEY, phrase_day );
+  }
+
+  update_time ( );
+  /*  THIS DOESN'T WORK
   switch ( units_changed ) {
     case DAY_UNIT:
       update_quote ( true );
       break;
-    case MINUTE_UNIT:
+
+    default:
       update_time ( );
       break;
-    default:
-      APP_LOG( APP_LOG_LEVEL_ERROR, "Error, this condition should be not reachable." );
   }
+  */
 }
 
 static void tap_handler ( AccelAxisType axis, int32_t direction ) {
-  Window *topmost = window_stack_get_top_window();
+  Window *topmost = window_stack_get_top_window ( );
   if ( topmost == s_main_window ) {
     window_stack_push ( s_calendar_window, true );
   } else {
@@ -139,7 +157,11 @@ static void tap_handler ( AccelAxisType axis, int32_t direction ) {
 }
 
 static void main_window_unload ( Window *window ) {
-  persist_write_int  ( PHRASE_TO_DISPLAY_KEY, phrase_to_display );
+  accel_tap_service_unsubscribe ( );
+
+  persist_write_int ( PHRASE_TO_DISPLAY_KEY, phrase_to_display );
+  persist_write_int ( PHRASE_DAY_KEY, phrase_day );
+
   text_layer_destroy ( s_quote_layer );
   text_layer_destroy ( s_quote_author_layer );
   text_layer_destroy ( s_time_layer );
@@ -228,6 +250,8 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
         graphics_context_set_text_color ( ctx, GColorClear );
         graphics_draw_text( ctx, weekdays[j], fonts_get_system_font ( FONT_KEY_GOTHIC_14 ), GRect ( day_width * j, week_height * i, day_width, week_height ), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL );
       }
+      // To redraw month and year.
+      layer_mark_dirty ( text_layer_get_layer ( s_date_layer ) );
     }
   }
 }
@@ -258,9 +282,8 @@ static void init( ) {
   s_main_window     = window_create();
   s_calendar_window = window_create();
 
-  tick_timer_service_subscribe ( MINUTE_UNIT | DAY_UNIT , tick_handler );
-  accel_tap_service_subscribe  ( tap_handler );
-  // ... more services
+  APP_LOG ( APP_LOG_LEVEL_INFO, "Set to: %d", MINUTE_UNIT );
+  tick_timer_service_subscribe ( MINUTE_UNIT , tick_handler );
 
   window_set_window_handlers ( s_main_window, ( WindowHandlers ) {
     .load   = main_window_load,
