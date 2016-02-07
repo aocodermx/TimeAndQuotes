@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+  <!--
+  <link rel='stylesheet' type='text/css' href='css/style.css'>
+-->
+
+  <style>
+    .title {
+      text-align: center;
+      padding-top: 0.5em;
+    }
+    .item blockquote {
+      padding-right: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">Time&amp;Quotes</h1>
+
+  <div class="item-container">
+    <div class="item-container-header">Look and Feel Settings</div>
+    <div class="item-container-content">
+      <label class="item">
+        Background Color
+         <input type="text" class="item-color item-color-normal" name="color-2" value="#000000">
+      </label>
+
+      <label class="item">
+        24 Hours Format
+        <input type="checkbox" class="item-toggle" name="toggle-1" checked>
+      </label>
+
+      <label class="item">
+        Show calendar
+        <input type="checkbox" class="item-toggle" name="toggle-1" checked>
+      </label>
+
+      <label class="item">
+        Change Quote
+        <select name="select-1" dir='ltr' class="item-select">
+          <option class="item-select-option">Hourly</option>
+          <option class="item-select-option" selected>Dialy</option>
+          <option class="item-select-option">Weekly</option>
+          <option class="item-select-option">Monthly</option>
+       </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="item-container">
+    <div class="item-container-header">Saved Quotes</div>
+    <div class="item-container-content">
+      <label class="item add-item">
+        Add Quote
+       </label>
+
+      <label class="item">
+        <blockquote>
+          <p>Quote 1</p>
+          <footer>— Author 1</footer>
+        </blockquote>
+         <div class="delete-item"></div>
+       </label>
+
+       <label class="item">
+         <blockquote>
+           <p>Quote 2</p>
+           <footer>— Author 2</footer>
+         </blockquote>
+          <div class="delete-item"></div>
+        </label>
+
+        <label class="item add-item">
+          Add Quote
+         </label>
+    </div>
+  </div>
+
+  <div class="item-container">
+    <div class="button-container">
+      <input type="button" class="item-button" value="SAVE">
+    </div>
+  </div>
+
+  <script src='js/slate.min.js'></script>
+  <!--
+  <script src='js/main.js'></script>
+  -->
+</body>
+</html>
