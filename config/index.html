@@ -6,7 +6,7 @@
   <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
   <!--
   <link rel='stylesheet' type='text/css' href='css/style.css'>
--->
+  -->
 
   <style>
     .title {
@@ -15,6 +15,19 @@
     }
     .item blockquote {
       padding-right: 20px;
+    }
+    #addQuoteDialog {
+      display:none;
+    }
+    #addquoteDOWN {
+      display:none;
+    }
+    .item-input {
+      font-size:1.1em;
+    }
+    .item_quote blockquote footer {
+      text-align:right;
+      padding-right:1em;
     }
   </style>
 </head>
@@ -27,26 +40,27 @@
     <div class="item-container-content">
       <label class="item">
         Background Color
-         <input type="text" class="item-color item-color-normal" name="color-2" value="#000000">
+        <input id="bgcolor" type="text" class="item-color item-color-normal" value="#000000">
       </label>
 
       <label class="item">
         24 Hours Format
-        <input type="checkbox" class="item-toggle" name="toggle-1" checked>
+        <input id="time24hours" type="checkbox" class="item-toggle" checked>
       </label>
 
       <label class="item">
         Show calendar
-        <input type="checkbox" class="item-toggle" name="toggle-1" checked>
+        <input id="showcalendar" type="checkbox" class="item-toggle" checked>
       </label>
 
       <label class="item">
         Change Quote
-        <select name="select-1" dir='ltr' class="item-select">
+        <select id="changequote" dir='ltr' class="item-select">
           <option class="item-select-option">Hourly</option>
           <option class="item-select-option" selected>Dialy</option>
           <option class="item-select-option">Weekly</option>
           <option class="item-select-option">Monthly</option>
+          <option class="item-select-option">Yearly</option>
        </select>
       </label>
     </div>
@@ -55,41 +69,56 @@
   <div class="item-container">
     <div class="item-container-header">Saved Quotes</div>
     <div class="item-container-content">
-      <label class="item add-item">
+      <a name="addQuoteDialogAnchor"></a>
+      <label id="addquoteUP" class="item add-item">
         Add Quote
-       </label>
+      </label>
 
-      <label class="item">
-        <blockquote>
-          <p>Quote 1</p>
-          <footer>— Author 1</footer>
-        </blockquote>
-         <div class="delete-item"></div>
-       </label>
-
+       <!--
        <label class="item">
          <blockquote>
            <p>Quote 2</p>
            <footer>— Author 2</footer>
          </blockquote>
-          <div class="delete-item"></div>
+         <div class="delete-item"></div>
         </label>
+        -->
 
-        <label class="item add-item">
-          Add Quote
-         </label>
+      <div id="addQuoteDialog">
+        <label class="item">
+          <div class="item-input-wrapper">
+            <textarea id="quote" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
+          </div>
+        </label>
+        <label class="item">
+          <div class="item-input-wrapper">
+            <input id="author" type="text" class="item-input" placeholder="Author">
+          </div>
+        </label>
+        <label class="item">
+          <div class="item tab-buttons">
+            <a id="addquoteconfirm" class="tab-button active">Add</a>
+            <a id="addquotecancel"  class="tab-button">Cancel</a>
+          </div>
+        </label>
+      </div>
+
+      <!--
+      <a name="addQuoteDialogAnchor"></a>
+      -->
+      <label id="addquoteDOWN" class="item add-item">
+        Add Quote
+       </label>
     </div>
   </div>
 
   <div class="item-container">
     <div class="button-container">
-      <input type="button" class="item-button" value="SAVE">
+      <input id="save_button" type="button" class="item-button" value="SAVE">
     </div>
   </div>
 
   <script src='js/slate.min.js'></script>
-  <!--
   <script src='js/main.js'></script>
-  -->
 </body>
 </html>

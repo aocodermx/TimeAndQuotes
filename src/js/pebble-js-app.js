@@ -14,3 +14,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
   console.log('JavaScript configuration loaded');
   Pebble.openURL( configurl );
 } );
+
+Pebble.addEventListener('webviewclosed', function(e) {
+  console.log('Configuration window returned: ' + e.response);
+});
