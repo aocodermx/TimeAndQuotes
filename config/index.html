@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <title></title>
   <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
-  <!--
-  <link rel='stylesheet' type='text/css' href='css/style.css'>
-  -->
 
   <style>
     .title {
@@ -54,13 +51,14 @@
       </label>
 
       <label class="item">
-        Change Quote
+        Change Quote Each
         <select id="changequote" dir='ltr' class="item-select">
-          <option class="item-select-option">Hourly</option>
-          <option class="item-select-option" selected>Dialy</option>
-          <option class="item-select-option">Weekly</option>
-          <option class="item-select-option">Monthly</option>
-          <option class="item-select-option">Yearly</option>
+          <option class="item-select-option" value="2">Minute</option>
+          <option class="item-select-option" value="4">Hour</option>
+          <option class="item-select-option" value="8" selected>Day</option>
+          <option class="item-select-option" value="16">Month</option>
+          <option class="item-select-option" value="32">Year</option>
+          <!--option class="item-select-option">Weekly</option-->
        </select>
       </label>
     </div>
@@ -119,6 +117,6 @@
   </div>
 
   <script src='js/slate.min.js'></script>
-  <script src='js/main.js'></script>
+  <script src='js/main.min.js'></script>
 </body>
 </html>

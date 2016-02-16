@@ -11,7 +11,13 @@
     "watchface": true
   },
   "appKeys": {
-    "dummy": 0
+    "KEY_BACKGROUND_COLOR": 1,
+    "KEY_TIME_24_HOURS"   : 2,
+    "KEY_SHOW_CALENDAR"   : 3,
+    "KEY_CHANGE_QUOTE"    : 4,
+    "KEY_REQUEST_QUOTE"   : 5,
+    "KEY_QUOTE"           : 6,
+    "KEY_AUTHOR"          : 7
   },
   "resources": {
     "media": []
