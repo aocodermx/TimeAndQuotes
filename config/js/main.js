@@ -26,23 +26,21 @@ function saveConfiguration ( config ) {
   localStorage.quotes       = JSON.stringify( window.quotes );
 }
 
-function refreshquotes() {
+function refreshquotes( ) {
   console.log( 'Refreshing quotes ' + window.quotes );
   $('.item_quote').remove();
 
-  /*
   if( quotes.length != 0 )
-    $('#addquoteDOWN').show();
+    $('#addquoteDOWN').css('display', 'block');
   else
     $('#addquoteDOWN').hide();
-  */
 
   for ( var i=0; i<window.quotes.length; i++ ) {
-    $('#addQuoteDialog').after( '<label class="item item_quote"><blockquote><p>' +
+    $('#addQuoteDialogUP').after( '<label class="item item_quote"><blockquote><p>' +
           window.quotes[i][0] +
-          '</p><footer>' +
+          '</p><footer><strong>' +
           window.quotes[i][1] +
-          '</footer></blockquote><div class="delete-item" id="deletequote'+i+'">' +
+          '</strong></footer></blockquote><div class="delete-item" id="deletequote'+i+'">' +
             '<input type="hidden" id="index" value="' + i +'">' +
           '</div></label>');
 
@@ -54,7 +52,8 @@ function refreshquotes() {
     });
   }
 
-  $('#addQuoteDialog').hide();
+  $('#addQuoteDialogUP').hide();
+  $('#addQuoteDialogDOWN').hide();
 }
 
 
@@ -81,32 +80,58 @@ function setEventHandlers ( ) {
   });
 
   $('#addquoteUP').on('click', function() {
-    $('#addQuoteDialog').toggle();
-    location.href = '#addQuoteDialogAnchor';
+    $('#quoteUP').focus();
+    $('#addQuoteDialogUP').toggle();
+    $('#addQuoteDialogDOWN').hide();
+    location.href = '#addQuoteDialogAnchorUP';
   });
 
   $('#addquoteDOWN').on('click', function() {
-    $('#addQuoteDialog').toggle();
+    $('#quoteDOWN').focus();
+    $('#addQuoteDialogUP').hide();
+    $('#addQuoteDialogDOWN').toggle();
+    location.href = '#addQuoteDialogAnchorDOWN';
   });
 
-  $('#addquoteconfirm').on('click', function() {
+  $('#addquoteconfirmUP').on('click', function() {
     var
-      addquote  = $('#quote').val(),
-      addauthor = $('#author').val();
+      addquote  = $('#quoteUP').val(),
+      addauthor = $('#authorUP').val();
     // Validate for non empty strings
     if ( addquote.length != 0 && addauthor.length != 0) {
       window.quotes.push( [ addquote, addauthor ] );
-      $('#quote').val("");
-      $('#author').val("");
+      $('#quoteUP').val("");
+      $('#authorUP').val("");
       refreshquotes();
     } else {
       console.log("Add a valid author and quote.");
     }
   });
 
-  $('#addquotecancel').on('click', function() {
-    $('#quote').val("");
-    $('#author').val("");
-    $('#addQuoteDialog').hide();
+  $('#addquoteconfirmDOWN').on('click', function() {
+    var
+      addquote  = $('#quoteDOWN').val(),
+      addauthor = $('#authorDOWN').val();
+    // Validate for non empty strings
+    if ( addquote.length != 0 && addauthor.length != 0) {
+      window.quotes.unshift( [ addquote, addauthor ] );
+      $('#quoteDOWN').val("");
+      $('#authorDOWN').val("");
+      refreshquotes();
+    } else {
+      console.log("Add a valid author and quote.");
+    }
+  });
+
+  $('#addquotecancelUP').on('click', function() {
+    $('#quoteUP').val("");
+    $('#authorUP').val("");
+    $('#addQuoteDialogUP').hide();
+  });
+
+  $('#addquotecancelDOWN').on('click', function() {
+    $('#quoteDOWN').val("");
+    $('#authorDOWN').val("");
+    $('#addQuoteDialogDOWN').hide();
   });
 }

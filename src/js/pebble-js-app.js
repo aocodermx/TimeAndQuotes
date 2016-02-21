@@ -15,10 +15,15 @@ Pebble.addEventListener('appmessage', function(e) {
   var
     quotes = JSON.parse ( localStorage.quotes ),
     tosend = getRandomInt( 0, quotes.length ),
-    dict = {
-      'KEY_QUOTE' : quotes[tosend][0],
-      'KEY_AUTHOR': quotes[tosend][1]
-    };
+    dict = {};
+
+  if ( quotes.length != 0 ) {
+    dict['KEY_QUOTE']  = quotes[tosend][0];
+    dict['KEY_AUTHOR'] = quotes[tosend][1];
+  } else {
+    dict['KEY_QUOTE']  = '';
+    dict['KEY_AUTHOR'] = '';
+  }
 
   Pebble.sendAppMessage( dict, function() {
     console.log ( 'Quote sent successfully.' + JSON.stringify ( dict ) );
@@ -30,6 +35,7 @@ Pebble.addEventListener('appmessage', function(e) {
 Pebble.addEventListener('showConfiguration', function(e) {
   console.log('JavaScript configuration site will be loaded');
   var configurl = 'http://aocodermx.me/project/TimeAndQuotes/config/';
+//  var configurl = 'http://192.168.1.194:8000/config/';
   Pebble.openURL( configurl );
 } );
 
@@ -43,6 +49,11 @@ Pebble.addEventListener('webviewclosed', function(e) {
     'KEY_SHOW_CALENDAR'   : config['showcalendar'],
     'KEY_CHANGE_QUOTE'    : config['changequote']
   };
+
+  if ( config['quotes'].length != 0 ) {
+    dict['KEY_QUOTE']  = config['quotes'][0][0];
+    dict['KEY_AUTHOR'] = config['quotes'][0][1];
+  }
 
   localStorage.quotes = JSON.stringify ( config['quotes'] );
 

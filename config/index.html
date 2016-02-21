@@ -13,10 +13,7 @@
     .item blockquote {
       padding-right: 20px;
     }
-    #addQuoteDialog {
-      display:none;
-    }
-    #addquoteDOWN {
+    #addQuoteDialogUP, #addQuoteDialogDOWN, #addquoteDOWN {
       display:none;
     }
     .item-input {
@@ -24,6 +21,7 @@
     }
     .item_quote blockquote footer {
       text-align:right;
+      font-size: 1.3em;
       padding-right:1em;
     }
   </style>
@@ -67,7 +65,7 @@
   <div class="item-container">
     <div class="item-container-header">Saved Quotes</div>
     <div class="item-container-content">
-      <a name="addQuoteDialogAnchor"></a>
+      <a name="addQuoteDialogAnchorUP"></a>
       <label id="addquoteUP" class="item add-item">
         Add Quote
       </label>
@@ -82,31 +80,49 @@
         </label>
         -->
 
-      <div id="addQuoteDialog">
+      <div id="addQuoteDialogUP">
         <label class="item">
           <div class="item-input-wrapper">
-            <textarea id="quote" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
+            <textarea id="quoteUP" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
           </div>
         </label>
         <label class="item">
           <div class="item-input-wrapper">
-            <input id="author" type="text" class="item-input" placeholder="Author">
+            <input id="authorUP" type="text" class="item-input" placeholder="Author">
           </div>
         </label>
         <label class="item">
           <div class="item tab-buttons">
-            <a id="addquoteconfirm" class="tab-button active">Add</a>
-            <a id="addquotecancel"  class="tab-button">Cancel</a>
+            <a id="addquoteconfirmUP" class="tab-button active">Add</a>
+            <a id="addquotecancelUP"  class="tab-button">Cancel</a>
           </div>
         </label>
       </div>
 
-      <!--
-      <a name="addQuoteDialogAnchor"></a>
-      -->
+      <a name="addQuoteDialogAnchorDOWN"></a>
       <label id="addquoteDOWN" class="item add-item">
         Add Quote
        </label>
+
+       <div id="addQuoteDialogDOWN">
+         <label class="item">
+           <div class="item-input-wrapper">
+             <textarea id="quoteDOWN" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
+           </div>
+         </label>
+         <label class="item">
+           <div class="item-input-wrapper">
+             <input id="authorDOWN" type="text" class="item-input" placeholder="Author">
+           </div>
+         </label>
+         <label class="item">
+           <div class="item tab-buttons">
+             <a id="addquoteconfirmDOWN" class="tab-button active">Add</a>
+             <a id="addquotecancelDOWN"  class="tab-button">Cancel</a>
+           </div>
+         </label>
+       </div>
+
     </div>
   </div>
 

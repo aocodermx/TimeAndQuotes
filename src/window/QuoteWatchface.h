@@ -9,6 +9,8 @@
 #define PHRASE_DAY_KEY        2
 #define MAX_DATA_QUOTE        300
 #define MAX_DATA_AUTHOR       60
+#define DEFAULT_QUOTE        "Visit your app settings to add quotes."
+#define DEFAULT_AUTHOR       "AOCODERMX"
 
 // Configuration defines
 #define KEY_BACKGROUND_COLOR 1

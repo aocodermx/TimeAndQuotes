@@ -5,13 +5,17 @@
 static Window    *s_calendar_window;
 static TextLayer *s_date_layer;
 static Layer     *s_calendar_layer;
+
 const char * const weekdays[] = { "D", "L", "M", "M", "J", "V", "S" };
 
-static void calendar_window_load ( Window * );
-static void calendar_window_unload ( Window * );
-static void calendar_layer_update ( Layer *, GContext *);
-static int get_weekday            ( struct tm );
-static void timer_handler ( void * );
+static void calendar_window_load      ( Window * );
+static void calendar_window_unload    ( Window * );
+static void calendar_window_appear    ( Window * );
+static void calendar_window_disappear ( Window * );
+static void calendar_layer_update     ( Layer *, GContext *);
+static int  get_weekday               ( struct tm );
+static void timer_handler             ( void * );
+static void accel_tap_handler               ( AccelAxisType, int32_t );
 
 /*
  *  IMPLEMENTATION FOR CALENDAR WINDOW
@@ -21,7 +25,9 @@ void window_calendar_init() {
 
  window_set_window_handlers ( s_calendar_window, ( WindowHandlers) {
    .load   = calendar_window_load,
-   .unload = calendar_window_unload
+   .unload = calendar_window_unload,
+   .appear = calendar_window_appear,
+   .disappear = calendar_window_disappear
  } );
 
  window_stack_push ( s_calendar_window, true );
@@ -39,7 +45,7 @@ static void calendar_window_load ( Window *window ) {
   struct tm *tick_time = localtime             ( &temp );
 
   strftime ( date, sizeof( date ), "%B %Y", tick_time );
-  app_timer_register ( CALENDAR_DISPLAY_TIME, timer_handler, NULL );
+  app_timer_register ( CALENDAR_MAX_DISPLAY_MILLISECONDS, timer_handler, NULL );
 
   // Create date Calendar Layer
   s_calendar_layer = layer_create ( GRect ( 0, BAR_CALENDAR_TOP_HEIGTH, bounds.size.w, bounds.size.h - BAR_CALENDAR_TOP_HEIGTH ) );
@@ -114,6 +120,15 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
   }
 }
 
+static void calendar_window_appear ( Window * window ) {
+  accel_tap_service_subscribe ( accel_tap_handler );
+}
+
+static void calendar_window_disappear ( Window * window ) {
+  accel_tap_service_unsubscribe ( );
+}
+
+
 static void calendar_window_unload ( Window *window ) {
   text_layer_destroy ( s_date_layer );
 }
@@ -128,5 +143,9 @@ static int get_weekday ( struct tm time ) {
 }
 
 static void timer_handler ( void* data ) {
+  window_stack_remove ( s_calendar_window, true );
+}
+
+static void accel_tap_handler ( AccelAxisType axis, int32_t direction ) {
   window_stack_remove ( s_calendar_window, true );
 }

@@ -108,17 +108,29 @@ static void main_window_unload ( Window *window ) {
 }
 
 static void main_window_appear ( Window *window ) {
-  accel_tap_service_subscribe  ( tap_handler );
+  if ( data_show_calendar == true ) {
+    accel_tap_service_subscribe  ( tap_handler );
+  }
 }
 
 static void main_window_disappear ( Window *window ){
-  accel_tap_service_unsubscribe ( );
+  if ( data_show_calendar == true ) {
+    accel_tap_service_unsubscribe ( );
+  }
 }
 
 static void update_quote ( ) {
   GFont quote_font;
 
-  int quote_len = strlen( data_quote );
+  int quote_len  = strlen ( data_quote );
+  int author_len = strlen ( data_author );
+
+  if ( quote_len == 0 && author_len == 0 ) {
+    text_layer_set_font ( s_quote_layer, fonts_get_system_font ( FONT_KEY_GOTHIC_28 ) );
+    text_layer_set_text ( s_quote_layer, DEFAULT_QUOTE );
+    text_layer_set_text ( s_quote_author_layer, DEFAULT_AUTHOR );
+    return;
+  }
 
   // Four levels of font sizes, select the right one
        if ( quote_len < 20 )                    quote_font = fonts_get_system_font ( FONT_KEY_BITHAM_30_BLACK );
@@ -130,6 +142,7 @@ static void update_quote ( ) {
   text_layer_set_font ( s_quote_layer, quote_font );
   text_layer_set_text ( s_quote_layer, data_quote );
   text_layer_set_text ( s_quote_author_layer, data_author);
+
 }
 
 static void update_time ( ) {
@@ -148,9 +161,6 @@ static void update_time ( ) {
 static void tick_handler ( struct tm *tick_time, TimeUnits units_changed ) {
   update_time ( );
 
-  // Update quote from configuration
-  // update_quote ( );
-
   if( ( units_changed & data_change_quote ) != 0 ) {
     int value = 1;
     APP_LOG( APP_LOG_LEVEL_INFO, "Request new quote" );
@@ -165,9 +175,7 @@ static void tick_handler ( struct tm *tick_time, TimeUnits units_changed ) {
 }
 
 static void tap_handler ( AccelAxisType axis, int32_t direction ) {
-  if ( data_show_calendar == true ) {
     window_calendar_init();
-  }
 }
 
 
@@ -210,6 +218,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_TIME_24_HOURS   : %d", data_time_24_hours );
     APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_SHOW_CALENDAR   : %d", data_show_calendar );
     APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_CHANGE_QUOTE    : %d", data_change_quote );
+
+    if ( data_show_calendar == true ) {
+      accel_tap_service_subscribe  ( tap_handler );
+    } else {
+      accel_tap_service_unsubscribe ( );
+    }
 
     update_time();
   }

@@ -1,3 +1,6 @@
+/*
+  REMOVE FONTS, FOR IMPROVE LOAD TIME
+
 @font-face {
   font-family: 'PFDinDisplayProLightWebfont';
   src: url("../fonts/PFDinDisplayPro-Light.woff") format("woff");
@@ -10,6 +13,7 @@
   font-weight: normal;
   font-style: normal;
   font-variant: normal; }
+*/
 * {
   margin: 0;
   padding: 0; }
