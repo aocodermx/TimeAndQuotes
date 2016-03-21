@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
-  <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+  <link rel='stylesheet' type='text/css' href='./css/slate.min.css'>
 
   <style>
     .title {
@@ -49,7 +49,15 @@
       </label>
 
       <label class="item">
-        Change Quote Each
+        Change Quotes
+        <select id="changequotes" dir='ltr' class="item-select">
+          <option class="item-select-option" value="1" selected>Ramdomly</option>
+          <option class="item-select-option" value="2">Sequentially</option>
+       </select>
+      </label>
+
+      <label class="item">
+        Change Quotes Period
         <select id="changequote" dir='ltr' class="item-select">
           <option class="item-select-option" value="2">Minute</option>
           <option class="item-select-option" value="4">Hour</option>
@@ -132,7 +140,7 @@
     </div>
   </div>
 
-  <script src='js/slate.min.js'></script>
-  <script src='js/main.min.js'></script>
+  <script src='./js/slate.min.js'></script>
+  <script src='./js/main.min.js'></script>
 </body>
 </html>

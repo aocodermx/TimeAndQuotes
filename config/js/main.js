@@ -1,4 +1,6 @@
+
 (function() {
+  window.quotes = new Array();
   loadConfiguration();
   setEventHandlers();
 })();
@@ -9,6 +11,7 @@ function loadConfiguration ( ) {
     $("#time24hours")[0].checked  = localStorage.time24hours === '1';
     $("#showcalendar")[0].checked = localStorage.showcalendar === '1';
     $("#changequote")[0].value    = localStorage.changequote;
+    $("#changequotes")[0].value   = localStorage.changequotes;
     window.quotes = JSON.parse( localStorage.quotes );
     refreshquotes();
   } else {
@@ -23,6 +26,7 @@ function saveConfiguration ( config ) {
   localStorage.time24hours  = config.time24hours;
   localStorage.showcalendar = config.showcalendar;
   localStorage.changequote  = config.changequote;
+  localStorage.changequotes = config.changequotes;
   localStorage.quotes       = JSON.stringify( window.quotes );
 }
 
@@ -64,12 +68,14 @@ function setEventHandlers ( ) {
     var
       time24hours  = $("#time24hours")[0].checked ? 1 : 0,
       showcalendar = $("#showcalendar")[0].checked ? 1 : 0,
-      changequote  = parseInt( $("#changequote").val() ),
+      changequote  = parseInt ( $("#changequote").val() ),
+      changequotes = parseInt ( $("#changequotes").val() ),
       config = {
         'bgcolor'     : $("#bgcolor").val(),
         'time24hours' : time24hours,
         'showcalendar': showcalendar,
         'changequote' : changequote,
+        'changequotes': changequotes,
         'quotes'      : window.quotes
       };
 

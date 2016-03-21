@@ -20,6 +20,42 @@
     "KEY_AUTHOR"          : 7
   },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "font",
+        "name": "QUOTE_10",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_14",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_18",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_22",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_26",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_30",
+        "file": "Cinzel-Black.otf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_34",
+        "file": "Cinzel-Black.otf"
+      }
+    ]
   }
 }
