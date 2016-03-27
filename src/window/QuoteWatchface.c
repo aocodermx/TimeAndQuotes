@@ -2,12 +2,13 @@
 #include "QuoteWatchface.h"
 #include "Calendar.h"
 
+// Comment for supress debug info, recommended to production environment.
+#define DEBUG_PRINT_LOGS
 
 static Window    *s_quotes_window;
 static TextLayer *s_quote_layer;
 static TextLayer *s_quote_author_layer;
 static TextLayer *s_time_layer;
-static GFont      s_font_quote;
 #if defined(PBL_BW)
   static int font_handles [] = {
     RESOURCE_ID_QUOTE_37,
@@ -40,6 +41,7 @@ static GFont      s_font_quote;
     RESOURCE_ID_QUOTE_10,
   };
 #endif
+static GFont s_font_quote [ sizeof font_handles ];
 
 static int data_background_color;
 static int data_time_24_hours;
@@ -98,13 +100,20 @@ static void main_window_load ( Window *window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds        = layer_get_bounds      ( window_layer );
 
+  memset ( s_font_quote, 0, sizeof ( s_font_quote ) );
+
   // Load configuration data
-  data_background_color = persist_read_int ( KEY_BACKGROUND_COLOR );
-  data_time_24_hours    = persist_read_int ( KEY_TIME_24_HOURS );
-  data_show_calendar    = persist_read_int ( KEY_SHOW_CALENDAR );
-  data_change_quote     = persist_read_int ( KEY_CHANGE_QUOTE );
-  persist_read_string ( KEY_QUOTE , data_quote , MAX_DATA_QUOTE );
-  persist_read_string ( KEY_AUTHOR, data_author, MAX_DATA_AUTHOR );
+  data_background_color = persist_exists ( KEY_BACKGROUND_COLOR ) ? persist_read_int ( KEY_BACKGROUND_COLOR ) : 0; // Use watch_info_get_color for better selection
+  data_time_24_hours    = persist_exists ( KEY_TIME_24_HOURS    ) ? persist_read_int ( KEY_TIME_24_HOURS    ) : 1;
+  data_show_calendar    = persist_exists ( KEY_SHOW_CALENDAR    ) ? persist_read_int ( KEY_SHOW_CALENDAR    ) : 1;
+  data_change_quote     = persist_exists ( KEY_CHANGE_QUOTE     ) ? persist_read_int ( KEY_CHANGE_QUOTE     ) : 8;
+  if ( persist_exists ( KEY_QUOTE ) && persist_exists ( KEY_AUTHOR ) ) {
+    persist_read_string ( KEY_QUOTE , data_quote , MAX_DATA_QUOTE  );
+    persist_read_string ( KEY_AUTHOR, data_author, MAX_DATA_AUTHOR );
+  } else {
+    strcpy ( data_quote , DEFAULT_QUOTE  );
+    strcpy ( data_author, DEFAULT_AUTHOR );
+  }
 
   #if defined(PBL_COLOR)
     GColor bg_color = GColorFromHEX ( data_background_color );
@@ -114,7 +123,6 @@ static void main_window_load ( Window *window ) {
   #endif
 
   // Create quote TextLayer and add it to Window hierarchy
-  // s_quote_layer = text_layer_create ( GRect ( 0, 0, bounds.size.w, bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR ) );
   s_quote_layer = text_layer_create ( GRect ( 0, 0, bounds.size.w, bounds.size.h ) );
   #if defined(PBL_COLOR)
     text_layer_set_background_color ( s_quote_layer, bg_color );
@@ -155,63 +163,87 @@ static void main_window_load ( Window *window ) {
 
   update_quote ( );
   update_time ( );
+
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG ( APP_LOG_LEVEL_INFO, "MAIN_WINDOW_LOAD: heap_bytes_used %d", heap_bytes_used ( ) );
+  #endif
 }
 
 static void main_window_unload ( Window *window ) {
   text_layer_destroy ( s_quote_layer );
   text_layer_destroy ( s_quote_author_layer );
   text_layer_destroy ( s_time_layer );
+
+  persist_write_string ( KEY_QUOTE           , data_quote );
+  persist_write_string ( KEY_AUTHOR          , data_author );
+  persist_write_int    ( KEY_BACKGROUND_COLOR, data_background_color );
+  persist_write_int    ( KEY_TIME_24_HOURS   , data_time_24_hours );
+  persist_write_int    ( KEY_SHOW_CALENDAR   , data_show_calendar );
+  persist_write_int    ( KEY_CHANGE_QUOTE    , data_change_quote );
+
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG ( APP_LOG_LEVEL_INFO, "MAIN_WINDOW_UNLOAD: heap_bytes_used %d", heap_bytes_used ( ) );
+  #endif
 }
 
 static void main_window_appear ( Window *window ) {
   if ( data_show_calendar == true ) {
     accel_tap_service_subscribe  ( tap_handler );
   }
+  // To avoid UI to become dirty
+  layer_mark_dirty ( window_get_root_layer ( window ) );
+
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG ( APP_LOG_LEVEL_INFO, "MAIN_WINDOW_APPEAR: heap_bytes_used %d", heap_bytes_used ( ) );
+  #endif
 }
 
 static void main_window_disappear ( Window *window ){
   if ( data_show_calendar == true ) {
     accel_tap_service_unsubscribe ( );
   }
+
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG ( APP_LOG_LEVEL_INFO, "MAIN_WINDOW_DISAPPEAR: heap_bytes_used %d", heap_bytes_used ( ) );
+  #endif
 }
 
 static void update_quote ( ) {
-  APP_LOG( APP_LOG_LEVEL_INFO, "Update quote" );
   GSize qBox;
-  Layer *window_layer = window_get_root_layer ( s_quotes_window );
-  GRect bounds        = layer_get_bounds      ( window_layer );
+  GRect bounds = layer_get_bounds ( window_get_root_layer ( s_quotes_window ) );
 
   #if defined(PBL_COLOR)
-    GColor bg_color     = GColorFromHEX         ( data_background_color );
-    window_set_background_color ( s_quotes_window, bg_color );
+    window_set_background_color ( s_quotes_window, GColorFromHEX ( data_background_color ) );
   #endif
-
-  if ( strlen ( data_quote ) == 0 && strlen ( data_author ) == 0 ) {
-    APP_LOG( APP_LOG_LEVEL_INFO, "Set default quote" );
-    text_layer_set_font ( s_quote_layer, fonts_load_custom_font ( resource_get_handle ( RESOURCE_ID_QUOTE_22 ) ) );
-    text_layer_set_text ( s_quote_layer, DEFAULT_QUOTE );
-    text_layer_set_text ( s_quote_author_layer, DEFAULT_AUTHOR );
-    text_layer_set_size ( s_quote_layer, GSize ( bounds.size.w, bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR ) );
-
-    // Align vertically s_quote_layer
-    qBox = text_layer_get_content_size ( s_quote_layer );
-    layer_set_frame ( text_layer_get_layer ( s_quote_layer ), GRect ( bounds.origin.x, bounds.origin.y + ( bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR - qBox.h ) / 2, bounds.size.w, qBox.h ) );
-    return;
-  }
 
   text_layer_set_size ( s_quote_layer, GSize ( bounds.size.w, bounds.size.h ) );
   text_layer_set_text ( s_quote_author_layer, data_author);
 
-  for ( int i = 0; i <= (int) ( sizeof ( font_handles ) / sizeof ( font_handles[0] ) ); i++ ) {
-    s_font_quote = fonts_load_custom_font ( resource_get_handle ( font_handles[i] ) );
-    text_layer_set_font ( s_quote_layer, s_font_quote );
+  for ( int i = 0; i < (int) ( sizeof ( font_handles ) / sizeof ( font_handles[0] ) ); i++ ) {
+    if ( s_font_quote [ i ] == 0 ) {
+      s_font_quote [i] = fonts_load_custom_font ( resource_get_handle ( font_handles[i] ) );
+      #if defined(DEBUG_PRINT_LOGS)
+        APP_LOG ( APP_LOG_LEVEL_INFO, "UPDATE_QUOTE: Load font %d, heap_bytes_used %d", i, heap_bytes_used ( ) );
+      #endif
+    }
+    text_layer_set_font ( s_quote_layer, s_font_quote [ i ] );
     text_layer_set_text ( s_quote_layer, data_quote );
 
     qBox = text_layer_get_content_size ( s_quote_layer );
 
     if ( qBox.h < bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR ) {
-      APP_LOG( APP_LOG_LEVEL_INFO, "Font position: %d, Quote height: %d, Quote max: %d", i, qBox.h, bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR );
+      #if defined(DEBUG_PRINT_LOGS)
+        APP_LOG( APP_LOG_LEVEL_INFO, "UPDATE_QUOTE: Font position: %d, Quote height: %d, Quote max: %d, heap_bytes_used: %d", i, qBox.h, bounds.size.h - BAR_DATETIME_HEIGTH - BAR_AUTHOR, heap_bytes_used ( ) );
+      #endif
       break;
+    }
+
+    if ( i > 0 ) {
+      fonts_unload_custom_font ( s_font_quote [ i - 1 ] );
+      s_font_quote [ i - 1 ] = 0;
+      #if defined(DEBUG_PRINT_LOGS)
+        APP_LOG ( APP_LOG_LEVEL_INFO, "UPDATE_QUOTE: Unload font %d, heap_bytes_used %d", i - 1, heap_bytes_used ( ) );
+      #endif
     }
   }
 
@@ -221,12 +253,13 @@ static void update_quote ( ) {
 }
 
 static void update_time ( ) {
-  APP_LOG( APP_LOG_LEVEL_INFO, "Update time" );
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG( APP_LOG_LEVEL_INFO, "UPDATE_TIME: data_time_24_hours %d, heap_bytes_used: %d", data_time_24_hours, heap_bytes_used ( ) );
+  #endif
   static char buffer[] = "00:00 XX";
   time_t temp          = time      ( NULL );
   struct tm *tick_time = localtime ( &temp );
 
-  // if ( clock_is_24h_style == true )
   if ( data_time_24_hours == true )
     strftime ( buffer, sizeof( "00 : 00" ), "%H : %M", tick_time );
   else
@@ -239,22 +272,27 @@ static void tick_handler ( struct tm *tick_time, TimeUnits units_changed ) {
   update_time ( );
 
   if( ( units_changed & data_change_quote ) != 0 ) {
-    int value = 1;
-    APP_LOG( APP_LOG_LEVEL_INFO, "Request new quote" );
+    int value  = 1;
 
     DictionaryIterator *request;
     app_message_outbox_begin ( &request );
     dict_write_int ( request, KEY_REQUEST_QUOTE, &value, sizeof(int), false );
-    app_message_outbox_send ( );
+    #if defined(DEBUG_PRINT_LOGS)
+      int result = app_message_outbox_send ( );
+      if ( result == APP_MSG_OK ) {
+        APP_LOG( APP_LOG_LEVEL_INFO, "TICK_HANDLER: New quote requested" );
+      } else {
+        APP_LOG( APP_LOG_LEVEL_INFO, "TICK_HANDLER: New quote request failed %d", result );
+      }
+    #else
+      app_message_outbox_send ( );
+    #endif
   }
-
-  APP_LOG( APP_LOG_LEVEL_INFO, "Units Changed: %d", units_changed );
 }
 
 static void tap_handler ( AccelAxisType axis, int32_t direction ) {
     window_calendar_init();
 }
-
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
@@ -262,16 +300,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *key_author = dict_find ( iterator, KEY_AUTHOR);
 
   if ( key_quote && key_author ) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Message QUOTE received!");
-    
     strcpy ( data_quote, (char *)key_quote->value->cstring );
     strcpy ( data_author, (char *)key_author->value->cstring );
 
-    persist_write_string ( KEY_QUOTE , data_quote );
-    persist_write_string ( KEY_AUTHOR, data_author );
-
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_QUOTE : %s", data_quote);
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_AUTHOR: %s", data_author);
+    #if defined(DEBUG_PRINT_LOGS)
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_QUOTE  %s", data_quote);
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_AUTHOR %s", data_author);
+    #endif
 
     update_quote();
   }
@@ -282,21 +317,17 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *key_change_quote     = dict_find ( iterator, KEY_CHANGE_QUOTE );
 
   if ( key_background_color && key_time_24_hours && key_show_calendar && key_change_quote ) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Message CONFIG received!");
     data_background_color = (int)key_background_color->value->int32;
     data_time_24_hours    = (int)key_time_24_hours->value->uint8;
     data_show_calendar    = (int)key_show_calendar->value->uint8;
     data_change_quote     = (int)key_change_quote->value->uint8;
 
-    persist_write_int ( KEY_BACKGROUND_COLOR, data_background_color );
-    persist_write_int ( KEY_TIME_24_HOURS, data_time_24_hours );
-    persist_write_int ( KEY_SHOW_CALENDAR, data_show_calendar );
-    persist_write_int ( KEY_CHANGE_QUOTE , data_change_quote );
-
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_BACKGROUND_COLOR: %d", data_background_color );
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_TIME_24_HOURS   : %d", data_time_24_hours );
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_SHOW_CALENDAR   : %d", data_show_calendar );
-    APP_LOG(APP_LOG_LEVEL_INFO, "proccessed KEY_CHANGE_QUOTE    : %d", data_change_quote );
+    #if defined(DEBUG_PRINT_LOGS)
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_BACKGROUND_COLOR %d", data_background_color );
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_TIME_24_HOURS    %d", data_time_24_hours );
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_SHOW_CALENDAR    %d", data_show_calendar );
+      APP_LOG(APP_LOG_LEVEL_INFO, "INBOX_RECEIVED_CALLBACK: proccessed KEY_CHANGE_QUOTE     %d", data_change_quote );
+    #endif
 
     if ( data_show_calendar == true ) {
       accel_tap_service_subscribe  ( tap_handler );
@@ -319,13 +350,19 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped! -> %d", reason);
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG(APP_LOG_LEVEL_ERROR, "INBOX_DROPPED_CALLBACK: Message dropped! -> %d", reason);
+  #endif
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed! -> %d", reason);
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG(APP_LOG_LEVEL_ERROR, "OUTBOX_FAILED_CALLBACK: Outbox send failed! -> %d", reason);
+  #endif
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+  #if defined(DEBUG_PRINT_LOGS)
+    APP_LOG(APP_LOG_LEVEL_INFO, "OUTBOX_SENT_CALLBACK: Outbox send success!");
+  #endif
 }

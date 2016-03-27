@@ -21,28 +21,28 @@ static void accel_tap_handler               ( AccelAxisType, int32_t );
  *  IMPLEMENTATION FOR CALENDAR WINDOW
  */
 void window_calendar_init() {
- s_calendar_window = window_create();
+  s_calendar_window = window_create();
 
- window_set_window_handlers ( s_calendar_window, ( WindowHandlers) {
-   .load   = calendar_window_load,
-   .unload = calendar_window_unload,
-   .appear = calendar_window_appear,
-   .disappear = calendar_window_disappear
- } );
+  window_set_window_handlers ( s_calendar_window, ( WindowHandlers) {
+    .load      = calendar_window_load     ,
+    .unload    = calendar_window_unload   ,
+    .appear    = calendar_window_appear   ,
+    .disappear = calendar_window_disappear
+  } );
 
- window_stack_push ( s_calendar_window, true );
+  window_stack_push ( s_calendar_window, true );
 }
 
 void window_calendar_deinit() {
- window_destroy ( s_calendar_window );
+  window_destroy ( s_calendar_window );
 }
 
 static void calendar_window_load ( Window *window ) {
   static char date[20];
-  time_t temp          = time                  ( NULL );
-  Layer *window_layer  = window_get_root_layer ( window );
+  time_t temp          = time                  ( NULL         );
+  Layer *window_layer  = window_get_root_layer ( window       );
   GRect bounds         = layer_get_bounds      ( window_layer );
-  struct tm *tick_time = localtime             ( &temp );
+  struct tm *tick_time = localtime             ( &temp        );
 
   #if defined(PBL_COLOR)
     GColor bg_color = GColorFromHEX ( persist_read_int ( KEY_BACKGROUND_COLOR ) );
@@ -69,6 +69,19 @@ static void calendar_window_load ( Window *window ) {
   text_layer_set_text_alignment   ( s_date_layer, GTextAlignmentCenter );
   text_layer_set_font             ( s_date_layer, fonts_get_system_font( FONT_KEY_GOTHIC_24_BOLD ) );
   layer_add_child ( window_get_root_layer ( window ) , text_layer_get_layer ( s_date_layer ) );
+}
+
+static void calendar_window_unload ( Window *window ) {
+  text_layer_destroy ( s_date_layer     );
+  layer_destroy      ( s_calendar_layer );
+}
+
+static void calendar_window_appear ( Window * window ) {
+  accel_tap_service_subscribe ( accel_tap_handler );
+}
+
+static void calendar_window_disappear ( Window * window ) {
+  accel_tap_service_unsubscribe ( );
 }
 
 static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
@@ -149,19 +162,6 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
       layer_mark_dirty ( text_layer_get_layer ( s_date_layer ) );
     }
   }
-}
-
-static void calendar_window_appear ( Window * window ) {
-  accel_tap_service_subscribe ( accel_tap_handler );
-}
-
-static void calendar_window_disappear ( Window * window ) {
-  accel_tap_service_unsubscribe ( );
-}
-
-
-static void calendar_window_unload ( Window *window ) {
-  text_layer_destroy ( s_date_layer );
 }
 
 static int get_weekday ( struct tm time ) {

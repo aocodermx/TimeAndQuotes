@@ -3,13 +3,10 @@
 This is a list of things to be implemented, wich is organized in General related to the whole application, Time window related to the quotes and time display, Calendar windows related to display a calendar when user taps the phone, configuration related to options to modify the behavior of the application.
 
 ## General
-* Fix font overload bug, it causes a small quote font selection.
-* Set default backgroud color depending on watch real color.
-* Clean logs generation before publish.
+* Use dinamically allocated memory.
+* Set default backgroud color depending on real watch color.
 * Improve memory usage and application footprint.
-* Internationalizate application.
 * Add rounded screen support.
-* Set app default values.
 
 ## Time Window
 * Load quotes from twitter or web service.
@@ -26,6 +23,9 @@ This is a list of things to be implemented, wich is organized in General related
 ## Done
 
 List of changes implemented.
+* Set app default values.
+* Clean logs generation before publish.
+* Fix font overload bug, it causes a small quote font selection.
 * Display background color selector only for pebble time.
 * Add colors support.
 * Change fonts and improve Automatic Font Size Adjust quotes.
@@ -38,5 +38,6 @@ List of changes implemented.
 * Add Configuration feature from phone.
 
 ## Discarded
+* Internationalizate application.
 * Show system 12/24 hrs setting.
 * Add Accelerometer taps calendar interaction for change Month.

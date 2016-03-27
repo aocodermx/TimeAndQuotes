@@ -17,7 +17,7 @@ static void app_deinit( ) {
  * MAIN ROUTINE
  */
 int main ( void ) {
-  app_init ( );
+  app_init       ( );
   app_event_loop ( );
-  app_deinit ( );
+  app_deinit     ( );
 }
