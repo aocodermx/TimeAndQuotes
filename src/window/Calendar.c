@@ -44,6 +44,10 @@ static void calendar_window_load ( Window *window ) {
   GRect bounds         = layer_get_bounds      ( window_layer );
   struct tm *tick_time = localtime             ( &temp );
 
+  #if defined(PBL_COLOR)
+    GColor bg_color = GColorFromHEX ( persist_read_int ( KEY_BACKGROUND_COLOR ) );
+  #endif
+
   strftime ( date, sizeof( date ), "%B %Y", tick_time );
   app_timer_register ( CALENDAR_MAX_DISPLAY_MILLISECONDS, timer_handler, NULL );
 
@@ -54,8 +58,13 @@ static void calendar_window_load ( Window *window ) {
 
   // Create date TextLayer
   s_date_layer = text_layer_create ( GRect ( 0, 0, bounds.size.w, BAR_CALENDAR_TOP_HEIGTH ) );
-  text_layer_set_background_color ( s_date_layer, GColorBlack );
-  text_layer_set_text_color       ( s_date_layer, GColorClear );
+  #if defined(PBL_COLOR)
+    text_layer_set_background_color ( s_date_layer, bg_color );
+    text_layer_set_text_color       ( s_date_layer, gcolor_legible_over ( bg_color ) );
+  #else
+    text_layer_set_background_color ( s_date_layer, GColorBlack );
+    text_layer_set_text_color       ( s_date_layer, GColorWhite );
+  #endif
   text_layer_set_text             ( s_date_layer, date );
   text_layer_set_text_alignment   ( s_date_layer, GTextAlignmentCenter );
   text_layer_set_font             ( s_date_layer, fonts_get_system_font( FONT_KEY_GOTHIC_24_BOLD ) );
@@ -66,6 +75,10 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
   GPoint p1, p2;
   char day_number_string[10];
   GRect frame, bounds = layer_get_bounds ( layer );
+
+  #if defined(PBL_COLOR)
+    GColor bg_color = GColorFromHEX ( persist_read_int ( KEY_BACKGROUND_COLOR ) );
+  #endif
 
   int week_height = bounds.size.h / 7;
   int day_width   = bounds.size.w / 7;
@@ -92,11 +105,24 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
         days_font = ( current_month == tick_time->tm_mon ) ? fonts_get_system_font( FONT_KEY_GOTHIC_14_BOLD ) : fonts_get_system_font( FONT_KEY_GOTHIC_14 );
 
         if ( current_day == tick_time->tm_mday && current_month == tick_time->tm_mon ) {
-          graphics_context_set_text_color ( ctx, GColorBlack );
-          graphics_fill_rect              ( ctx, GRect ( day_width * j, week_height * i, day_width, week_height ), 0, GCornerNone );
-          graphics_context_set_text_color ( ctx, GColorClear );
+          #if defined(PBL_COLOR)
+            graphics_context_set_fill_color ( ctx, bg_color );
+          #else
+            graphics_context_set_text_color ( ctx, GColorBlack );
+          #endif
+          graphics_fill_rect              ( ctx, GRect ( day_width * j, week_height * i + 1, day_width , week_height - 1 ), 0, GCornerNone );
+          #if defined(PBL_COLOR)
+            graphics_context_set_text_color ( ctx, gcolor_legible_over ( bg_color ) );
+          #else
+            graphics_context_set_text_color ( ctx, GColorWhite );
+          #endif
         } else {
-          graphics_context_set_text_color ( ctx, GColorBlack );
+          #if defined(PBL_COLOR)
+            graphics_context_set_text_color ( ctx, bg_color );
+            graphics_context_set_fill_color ( ctx, gcolor_legible_over ( bg_color ) );
+          #else
+            graphics_context_set_text_color ( ctx, GColorBlack );
+          #endif
         }
 
         graphics_draw_text ( ctx, day_number_string, days_font, GRect ( day_width * j, week_height * i, day_width, week_height ), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL );
@@ -107,11 +133,16 @@ static void calendar_layer_update ( Layer *layer, GContext *ctx ) {
     if ( i == 6 ) { // Draw days init
       frame = GRect ( 0, week_height * i, bounds.size.w , week_height * i );
 
-      graphics_context_set_text_color ( ctx, GColorBlack );
+      #if defined(PBL_COLOR)
+        graphics_context_set_text_color ( ctx, gcolor_legible_over ( bg_color ) );
+        graphics_context_set_fill_color ( ctx, bg_color );
+      #else
+        graphics_context_set_text_color ( ctx, GColorWhite );
+      #endif
+
       graphics_fill_rect              ( ctx, frame, 0, GCornerNone );
 
       for ( int j = 0; j<= 6; j++) {
-        graphics_context_set_text_color ( ctx, GColorClear );
         graphics_draw_text( ctx, weekdays[j], fonts_get_system_font ( FONT_KEY_GOTHIC_14 ), GRect ( day_width * j, week_height * i, day_width, week_height ), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL );
       }
       // To redraw month and year.

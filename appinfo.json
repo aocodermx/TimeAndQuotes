@@ -24,37 +24,123 @@
       {
         "type": "font",
         "name": "QUOTE_10",
-        "file": "Cinzel-Black.otf"
+        "file": "The_Font.ttf"
       },
       {
         "type": "font",
-        "name": "QUOTE_14",
-        "file": "Cinzel-Black.otf"
-      },
-      {
-        "type": "font",
-        "name": "QUOTE_18",
-        "file": "Cinzel-Black.otf"
+        "name": "QUOTE_16",
+        "file": "The_Font.ttf"
       },
       {
         "type": "font",
         "name": "QUOTE_22",
-        "file": "Cinzel-Black.otf"
+        "file": "The_Font.ttf"
       },
       {
         "type": "font",
-        "name": "QUOTE_26",
-        "file": "Cinzel-Black.otf"
-      },
-      {
-        "type": "font",
-        "name": "QUOTE_30",
-        "file": "Cinzel-Black.otf"
+        "name": "QUOTE_28",
+        "file": "The_Font.ttf"
       },
       {
         "type": "font",
         "name": "QUOTE_34",
-        "file": "Cinzel-Black.otf"
+        "file": "The_Font.ttf"
+      },
+
+
+
+      {
+        "type": "font",
+        "name": "QUOTE_13",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_19",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_25",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_31",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_37",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+
+
+
+      {
+        "type": "font",
+        "name": "QUOTE_12",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_14",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_18",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_20",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_24",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_26",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_30",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_32",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_36",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_38",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
       }
     ]
   }

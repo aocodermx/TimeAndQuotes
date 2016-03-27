@@ -1,6 +1,11 @@
 
 (function() {
   window.quotes = new Array();
+
+  if ( getQueryParam ( "watch_platform" ) == "aplite" ) {
+    $("#bgcolor").parent().hide();
+  }
+
   loadConfiguration();
   setEventHandlers();
 })();
@@ -81,8 +86,8 @@ function setEventHandlers ( ) {
 
     saveConfiguration( config );
 
-    location.href = 'pebblejs://close#' +
-      encodeURIComponent ( JSON.stringify ( config ) );
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent ( JSON.stringify ( config ) );
   });
 
   $('#addquoteUP').on('click', function() {
@@ -140,4 +145,16 @@ function setEventHandlers ( ) {
     $('#authorDOWN').val("");
     $('#addQuoteDialogDOWN').hide();
   });
+}
+
+function getQueryParam(variable, defaultValue) {
+  var query = location.search.substring(1);
+  var vars = query.split('&');
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split('=');
+    if (pair[0] === variable) {
+      return decodeURIComponent(pair[1]);
+    }
+  }
+  return defaultValue || false;
 }

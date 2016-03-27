@@ -1,12 +1,5 @@
 Pebble.addEventListener('ready', function(e) {
   console.log('PebbleKit JS ready!');
-
-  // For display color selector or not.
-  if(Pebble.getActiveWatchInfo) {
-    console.log( 'PebbleKit getActiveWatchInfo available' );
-  } else {
-    console.log( 'PebbleKit getActiveWatchInfo unavailable' );
-  }
 } );
 
 Pebble.addEventListener('appmessage', function(e) {
@@ -35,36 +28,53 @@ Pebble.addEventListener('appmessage', function(e) {
 });
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  // var configurl = 'http://aocodermx.me/project/TimeAndQuotes/config/';
-  var configurl = 'http://192.168.1.194:8000/config/';
-  console.log('JavaScript configuration site will be loaded from: ' + configurl + " Config:" + JSON.stringify ( localStorage.quotes ) );
+
+  if(Pebble.getActiveWatchInfo) {
+    console.log( 'PebbleKit getActiveWatchInfo available' );
+  } else {
+    console.log( 'PebbleKit getActiveWatchInfo unavailable' );
+  }
+
+  var
+    watch_platform = Pebble.getActiveWatchInfo ? Pebble.getActiveWatchInfo().platform : "aplite";
+
+  var configurl = 'http://aocodermx.me/project/TimeAndQuotes/config/?watch_platform=' + encodeURIComponent ( watch_platform );
+  // var configurl = 'http://192.168.1.194:8000/config/?watch_platform=' + encodeURIComponent ( watch_platform );
+
+  console.log('JavaScript configuration site will be loaded from: ' + configurl + " Saved Quotes:" + JSON.stringify ( localStorage.quotes ) );
   Pebble.openURL( configurl );
 } );
 
 Pebble.addEventListener('webviewclosed', function(e) {
-  var config = JSON.parse ( decodeURIComponent(e.response) );
-  console.log('Configuration window returned: ' + JSON.stringify ( config ) );
+  if ( e.response ) {
+    var config = JSON.parse ( decodeURIComponent(e.response) );
+    console.log('Configuration window returned: ' + JSON.stringify ( config ) );
 
-  var dict = {
-    'KEY_BACKGROUND_COLOR': config['bgcolor'],
-    'KEY_TIME_24_HOURS'   : config['time24hours'],
-    'KEY_SHOW_CALENDAR'   : config['showcalendar'],
-    'KEY_CHANGE_QUOTE'    : config['changequote']
-  };
+    var dict = {
+      'KEY_BACKGROUND_COLOR': parseInt ( config['bgcolor'], 16 ),
+      'KEY_TIME_24_HOURS'   : config['time24hours'],
+      'KEY_SHOW_CALENDAR'   : config['showcalendar'],
+      'KEY_CHANGE_QUOTE'    : config['changequote']
+    };
 
-  if ( config['quotes'].length != 0 ) {
-    dict['KEY_QUOTE']  = config['quotes'][0][0];
-    dict['KEY_AUTHOR'] = config['quotes'][0][1];
+    if ( config['quotes'].length != 0 ) {
+      dict['KEY_QUOTE']  = config['quotes'][0][0];
+      dict['KEY_AUTHOR'] = config['quotes'][0][1];
+    }
+
+    localStorage.quotes       = JSON.stringify ( config['quotes'] );
+    localStorage.changequotes = parseInt ( config['changequotes'] );
+
+    console.log ( 'Preparing to send ... ' + JSON.stringify ( dict ) );
+
+    Pebble.sendAppMessage( dict, function() {
+      console.log ( 'Configuration data sent successfully.' );
+    }, function () {
+      console.log ( 'Send configuration data failed.' );
+    });
+  } else {
+    console.log ( "Response not received." );
   }
-
-  localStorage.quotes       = JSON.stringify ( config['quotes'] );
-  localStorage.changequotes = parseInt ( config['changequotes'] );
-
-  Pebble.sendAppMessage( dict, function() {
-    console.log ( 'Configuration data sent successfully.' );
-  }, function () {
-    console.log ( 'Send configuration data failed.' );
-  });
 });
 
 function getQuoteIndex(min, max) {
@@ -73,10 +83,10 @@ function getQuoteIndex(min, max) {
     return parseInt ( localStorage.qindex );
   } else if ( localStorage.changequotes == 2 ) {
     if ( localStorage.qindex ) {
-      localStorage.qindex = parseInt ( localStorage.qindex ) > max ? 0: parseInt( localStorage.qindex ) + 1;
+      localStorage.qindex = parseInt ( localStorage.qindex ) < 1 ? max - 1 : parseInt( localStorage.qindex ) - 1;
     } else {
-      localStorage.qindex = 0;
+      localStorage.qindex = max - 1;
     }
-    return max - parseInt ( localStorage.qindex );
+    return parseInt ( localStorage.qindex );
   }
 }
