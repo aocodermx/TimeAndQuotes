@@ -4,6 +4,9 @@
 
   if ( getQueryParam ( "watch_platform" ) == "aplite" ) {
     $("#bgcolor").parent().hide();
+    $("#quoteUP,#quoteDOWN").attr ("maxlength", 121);
+  } else if ( getQueryParam ( "watch_platform" ) == "basalt" ) {
+    $("#quoteUP,#quoteDOWN").attr ("maxlength", 141);
   }
 
   loadConfiguration();
@@ -15,9 +18,11 @@ function loadConfiguration ( ) {
     $("#bgcolor")[0].value        = localStorage.bgcolor;
     $("#time24hours")[0].checked  = localStorage.time24hours === '1';
     $("#showcalendar")[0].checked = localStorage.showcalendar === '1';
+    $("#showbattery")[0].checked  = localStorage.showbattery === '1';
     $("#changequote")[0].value    = localStorage.changequote;
     $("#changequotes")[0].value   = localStorage.changequotes;
-    window.quotes = JSON.parse( localStorage.quotes );
+    // window.quotes = JSON.parse( localStorage.quotes );
+    window.quotes = JSON.parse ( getQueryParam ( "quotes" ) );
     refreshquotes();
   } else {
     console.log( "No configuration saved." );
@@ -30,16 +35,17 @@ function saveConfiguration ( config ) {
   localStorage.bgcolor      = config.bgcolor;
   localStorage.time24hours  = config.time24hours;
   localStorage.showcalendar = config.showcalendar;
+  localStorage.showbattery  = config.showbattery;
   localStorage.changequote  = config.changequote;
   localStorage.changequotes = config.changequotes;
-  localStorage.quotes       = JSON.stringify( window.quotes );
+  // localStorage.quotes       = JSON.stringify( window.quotes );
 }
 
 function refreshquotes( ) {
   console.log( 'Refreshing quotes ' + window.quotes );
   $('.item_quote').remove();
 
-  if( quotes.length != 0 )
+  if( window.quotes.length != 0 )
     $('#addquoteDOWN').css('display', 'block');
   else
     $('#addquoteDOWN').hide();
@@ -67,18 +73,18 @@ function refreshquotes( ) {
 
 
 function setEventHandlers ( ) {
-  var $save_button = $('#save_button');
-
-  $save_button.on('click', function(){
+  $('#save_button').on('click', function(){
     var
-      time24hours  = $("#time24hours")[0].checked ? 1 : 0,
+      time24hours  = $("#time24hours")[0].checked  ? 1 : 0,
       showcalendar = $("#showcalendar")[0].checked ? 1 : 0,
+      showbattery  = $("#showbattery")[0].checked  ? 1 : 0,
       changequote  = parseInt ( $("#changequote").val() ),
       changequotes = parseInt ( $("#changequotes").val() ),
       config = {
         'bgcolor'     : $("#bgcolor").val(),
         'time24hours' : time24hours,
         'showcalendar': showcalendar,
+        'showbattery' : showbattery,
         'changequote' : changequote,
         'changequotes': changequotes,
         'quotes'      : window.quotes
@@ -95,6 +101,14 @@ function setEventHandlers ( ) {
     $('#addQuoteDialogUP').toggle();
     $('#addQuoteDialogDOWN').hide();
     location.href = '#addQuoteDialogAnchorUP';
+  });
+
+  $('#quoteUP').on( 'input', function() {
+    $('#remainingUP').text( parseInt( $("#quoteUP").attr( "maxlength" ) ) - parseInt ( $('#quoteUP').val().length ) );
+  });
+
+  $('#quoteDOWN').on( 'input', function() {
+    $('#remainingDOWN').text( parseInt( $("#quoteDOWN").attr( "maxlength" ) ) - parseInt ( $('#quoteDOWN').val().length ) );
   });
 
   $('#addquoteDOWN').on('click', function() {

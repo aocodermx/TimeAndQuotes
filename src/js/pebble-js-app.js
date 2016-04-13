@@ -1,5 +1,8 @@
 Pebble.addEventListener('ready', function(e) {
-  console.log('PebbleKit JS ready!');
+  console.log ( 'PebbleKit JS ready!' );
+
+  if ( !localStorage.quotes )
+    localStorage.quotes = JSON.stringify ( new Array ( ) );
 } );
 
 Pebble.addEventListener('appmessage', function(e) {
@@ -12,12 +15,12 @@ Pebble.addEventListener('appmessage', function(e) {
 
   console.log ( "quotes: " + JSON.stringify ( quotes ) + " tosend: " + tosend );
 
-  if ( quotes.length != 0 ) {
+  if ( quotes.length > 0 ) {
     dict['KEY_QUOTE']  = quotes[tosend][0];
     dict['KEY_AUTHOR'] = quotes[tosend][1];
   } else {
-    dict['KEY_QUOTE']  = '';
-    dict['KEY_AUTHOR'] = '';
+    dict['KEY_QUOTE']  = 'Visit your app settings to add quotes.';
+    dict['KEY_AUTHOR'] = 'AOCoderMX';
   }
 
   Pebble.sendAppMessage( dict, function() {
@@ -28,20 +31,14 @@ Pebble.addEventListener('appmessage', function(e) {
 });
 
 Pebble.addEventListener('showConfiguration', function(e) {
-
-  if(Pebble.getActiveWatchInfo) {
-    console.log( 'PebbleKit getActiveWatchInfo available' );
-  } else {
-    console.log( 'PebbleKit getActiveWatchInfo unavailable' );
-  }
-
   var
-    watch_platform = Pebble.getActiveWatchInfo ? Pebble.getActiveWatchInfo().platform : "aplite";
+    watch_platform = Pebble.getActiveWatchInfo ? Pebble.getActiveWatchInfo().platform : "aplite",
+    configurl = 'http://aocodermx.me/projects/TimeAndQuotes/config/v1.0/?watch_platform=' +
+        encodeURIComponent ( watch_platform ) +
+        '&quotes=' + encodeURIComponent ( localStorage.quotes );
+  //var configurl = 'http://192.168.1.194:8000/config/?watch_platform=' + encodeURIComponent ( watch_platform ) + '&quotes=' + encodeURIComponent ( localStorage.quotes );
 
-  var configurl = 'http://aocodermx.me/project/TimeAndQuotes/config/?watch_platform=' + encodeURIComponent ( watch_platform );
-  // var configurl = 'http://192.168.1.194:8000/config/?watch_platform=' + encodeURIComponent ( watch_platform );
-
-  console.log('JavaScript configuration site will be loaded from: ' + configurl + " Saved Quotes:" + JSON.stringify ( localStorage.quotes ) );
+  console.log('JavaScript configuration site will be loaded from: ' + configurl + "     Saved Quotes: " + JSON.stringify ( localStorage.quotes ) );
   Pebble.openURL( configurl );
 } );
 
@@ -54,7 +51,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
       'KEY_BACKGROUND_COLOR': parseInt ( config['bgcolor'], 16 ),
       'KEY_TIME_24_HOURS'   : config['time24hours'],
       'KEY_SHOW_CALENDAR'   : config['showcalendar'],
-      'KEY_CHANGE_QUOTE'    : config['changequote']
+      'KEY_CHANGE_QUOTE'    : config['changequote'],
+      'KEY_SHOW_BATTERY'    : config['showbattery']
     };
 
     if ( config['quotes'].length != 0 ) {
@@ -78,9 +76,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
 });
 
 function getQuoteIndex(min, max) {
+  if ( max == 0 ) return -1;
+
+  // Randomly
   if ( localStorage.changequotes == 1 ) {
-    localStorage.qindex = Math.floor(Math.random() * (max - min)) + min;
+    localStorage.qindex = Math.floor ( Math.random ( ) * ( max - min ) ) + min;
     return parseInt ( localStorage.qindex );
+
+  // Secuentially
   } else if ( localStorage.changequotes == 2 ) {
     if ( localStorage.qindex ) {
       localStorage.qindex = parseInt ( localStorage.qindex ) < 1 ? max - 1 : parseInt( localStorage.qindex ) - 1;

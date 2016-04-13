@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>TimeAndQuotes Configuration WebSite</title>
   <link rel='stylesheet' type='text/css' href='./css/slate.min.css'>
 
   <style>
@@ -15,6 +15,11 @@
     }
     #addQuoteDialogUP, #addQuoteDialogDOWN, #addquoteDOWN {
       display:none;
+    }
+    #remainingUP, #remainingDOWN {
+      text-align: right;
+      font-size: 0.6em;
+      padding:0px;
     }
     .item-input {
       font-size:1.1em;
@@ -40,12 +45,17 @@
 
       <label class="item">
         24 Hours Format
-        <input id="time24hours" type="checkbox" class="item-toggle" checked>
+        <input id="time24hours" type="checkbox" class="item-toggle">
       </label>
 
       <label class="item">
         Show calendar
         <input id="showcalendar" type="checkbox" class="item-toggle" checked>
+      </label>
+
+      <label class="item">
+        Show battery dots
+        <input id="showbattery" type="checkbox" class="item-toggle">
       </label>
 
       <label class="item">
@@ -92,11 +102,12 @@
         <label class="item">
           <div class="item-input-wrapper">
             <textarea id="quoteUP" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
+            <div class="item" id="remainingUP"></div>
           </div>
         </label>
         <label class="item">
           <div class="item-input-wrapper">
-            <input id="authorUP" type="text" class="item-input" placeholder="Author">
+            <input id="authorUP" type="text" class="item-input" maxlength="30" placeholder="Author">
           </div>
         </label>
         <label class="item">
@@ -116,11 +127,12 @@
          <label class="item">
            <div class="item-input-wrapper">
              <textarea id="quoteDOWN" rows="3" type="text" class="item-input" placeholder="Quote"></textarea>
+             <div class="item" id="remainingDOWN"></div>
            </div>
          </label>
          <label class="item">
            <div class="item-input-wrapper">
-             <input id="authorDOWN" type="text" class="item-input" placeholder="Author">
+             <input id="authorDOWN" type="text" class="item-input" maxlength="30" placeholder="Author">
            </div>
          </label>
          <label class="item">
