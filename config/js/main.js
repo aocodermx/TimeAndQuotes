@@ -75,6 +75,22 @@ function refreshquotes( ) {
 function setEventHandlers ( ) {
   $('#save_button').on('click', function(){
     var
+      addquoteup  = $('#quoteUP').val(),
+      addauthorup = $('#authorUP').val();
+    // Validate for non empty strings
+    if ( addquoteup.length != 0 && addauthorup.length != 0) {
+      window.quotes.push( [ addquoteup, addauthorup ] );
+    }
+
+    var
+      addquotedown  = $('#quoteDOWN').val(),
+      addauthordown = $('#authorDOWN').val();
+    // Validate for non empty strings
+    if ( addquotedown.length != 0 && addauthordown.length != 0) {
+      window.quotes.unshift( [ addquotedown, addauthordown ] );
+    }
+
+    var
       time24hours  = $("#time24hours")[0].checked  ? 1 : 0,
       showcalendar = $("#showcalendar")[0].checked ? 1 : 0,
       showbattery  = $("#showbattery")[0].checked  ? 1 : 0,
