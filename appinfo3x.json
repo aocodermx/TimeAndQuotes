@@ -1,0 +1,139 @@
+{
+  "uuid": "2846cc6b-3f3f-4c86-9fb3-37a8599214ca",
+  "shortName": "Time & Quotes",
+  "longName": "Time & Quotes",
+  "companyName": "aocodermx",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "capabilities": [ "configurable" ],
+  "targetPlatforms": ["aplite", "basalt"],
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "KEY_BACKGROUND_COLOR": 1,
+    "KEY_TIME_24_HOURS"   : 2,
+    "KEY_SHOW_CALENDAR"   : 3,
+    "KEY_CHANGE_QUOTE"    : 4,
+    "KEY_REQUEST_QUOTE"   : 5,
+    "KEY_QUOTE"           : 6,
+    "KEY_AUTHOR"          : 7,
+    "KEY_SHOW_BATTERY"    : 8
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "png",
+        "name": "MENU_ICON",
+        "file": "menu_icon.png",
+        "menuIcon": true
+      },
+
+
+
+      {
+        "type": "font",
+        "name": "QUOTE_18",
+        "file": "The_Font.ttf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_24",
+        "file": "The_Font.ttf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_30",
+        "file": "The_Font.ttf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_36",
+        "file": "The_Font.ttf"
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_38",
+        "file": "The_Font.ttf"
+      },
+
+
+
+      {
+        "type": "font",
+        "name": "QUOTE_15",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_21",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_27",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_33",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "aplite" ]
+      },
+
+
+
+      {
+        "type": "font",
+        "name": "QUOTE_14",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_16",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_20",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_22",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_26",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_28",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_32",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      },
+      {
+        "type": "font",
+        "name": "QUOTE_34",
+        "file": "The_Font.ttf",
+        "targetPlatforms": [ "basalt" ]
+      }
+    ]
+  }
+}

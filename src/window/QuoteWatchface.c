@@ -18,10 +18,10 @@ static int  data_show_battery;
 static int  data_change_quote;
 static char data_quote [MAX_DATA_QUOTE ];
 static char data_author[MAX_DATA_AUTHOR];
-#if defined(PBL_BW)
-  static int s_font_handles [] = { RESOURCE_ID_QUOTE_38, RESOURCE_ID_QUOTE_36, RESOURCE_ID_QUOTE_33, RESOURCE_ID_QUOTE_30, RESOURCE_ID_QUOTE_27, RESOURCE_ID_QUOTE_24, RESOURCE_ID_QUOTE_21, RESOURCE_ID_QUOTE_18, RESOURCE_ID_QUOTE_15, };
-#else
+#if defined ( PBL_PLATFORM_BASALT )
   static int s_font_handles [] = { RESOURCE_ID_QUOTE_38, RESOURCE_ID_QUOTE_36, RESOURCE_ID_QUOTE_34, RESOURCE_ID_QUOTE_32, RESOURCE_ID_QUOTE_30, RESOURCE_ID_QUOTE_28, RESOURCE_ID_QUOTE_26, RESOURCE_ID_QUOTE_24, RESOURCE_ID_QUOTE_22, RESOURCE_ID_QUOTE_20, RESOURCE_ID_QUOTE_18, RESOURCE_ID_QUOTE_16, RESOURCE_ID_QUOTE_14, };
+#else
+  static int s_font_handles [] = { RESOURCE_ID_QUOTE_38, RESOURCE_ID_QUOTE_36, RESOURCE_ID_QUOTE_30, RESOURCE_ID_QUOTE_24, RESOURCE_ID_QUOTE_21, RESOURCE_ID_QUOTE_18, RESOURCE_ID_QUOTE_15, };
 #endif
 static GFont s_font_quote [ sizeof s_font_handles ];
 
@@ -39,7 +39,9 @@ static void update_battery_layer  ( Layer *, GContext * );
 
 static void handler_tick_service    ( struct tm *, TimeUnits );
 static void handler_tap_service     ( AccelAxisType , int32_t );
+#if defined ( PBL_SDK_3 )
 static void handler_conn_service    ( bool );
+#endif
 static void handler_battery_service ( BatteryChargeState );
 static void handler_inbox_success   ( DictionaryIterator *, void *                  );
 static void handler_inbox_failed    ( AppMessageResult    , void *                  );
@@ -83,7 +85,9 @@ static void main_window_load ( Window *window ) {
   Layer *window_layer    = window_get_root_layer ( window );
   GRect bounds           = layer_get_bounds      ( window_layer );
 
+  #if defined ( PBL_SDK_3 )
   s_flag_phone_connected = connection_service_peek_pebble_app_connection ( );
+  #endif
   s_battery_percentage   = ( battery_state_service_peek ( ) ).charge_percent;
 
   data_background_color  = persist_exists ( KEY_BACKGROUND_COLOR ) ? persist_read_int ( KEY_BACKGROUND_COLOR ) : 0; // Use watch_info_get_color for better selection
@@ -102,10 +106,12 @@ static void main_window_load ( Window *window ) {
   // Services suscriptions
   tick_timer_service_subscribe    ( MINUTE_UNIT , handler_tick_service );
   battery_state_service_subscribe ( handler_battery_service            );
+  #if defined ( PBL_SDK_3 )
   connection_service_subscribe    ( ( ConnectionHandlers               ) {
     .pebble_app_connection_handler = handler_conn_service,
     .pebblekit_connection_handler  = NULL
   } );
+  #endif
 
   #if defined(PBL_COLOR)
     GColor bg_color = GColorFromHEX ( data_background_color );
@@ -173,7 +179,9 @@ static void main_window_unload ( Window *window ) {
   text_layer_destroy ( s_time_layer );
 
   tick_timer_service_unsubscribe    ( );
+  #if defined ( PBL_SDK_3 )
   connection_service_unsubscribe    ( );
+  #endif
   battery_state_service_unsubscribe ( );
   accel_tap_service_unsubscribe     ( );
 
@@ -295,7 +303,9 @@ static void update_time_layer ( ) {
 
 static void update_battery_layer ( Layer *layer, GContext *ctx ) {
   if ( data_show_battery ) {
+    #if defined ( PBL_COLOR )
     GColor bg_color   = GColorFromHEX ( data_background_color );
+    #endif
     GRect bounds      = layer_get_bounds ( layer );
 
     //int battery_width = ( bounds.size.w * s_battery_percentage ) / 100 ;
@@ -368,6 +378,7 @@ static void handler_tap_service ( AccelAxisType axis, int32_t direction ) {
     #endif
 }
 
+#if defined ( PBL_SDK_3 )
 static void handler_conn_service ( bool connected ) {
   s_flag_phone_connected = connected;
   update_time_layer ( ); // Instead update bluetooth connection icon
@@ -375,6 +386,7 @@ static void handler_conn_service ( bool connected ) {
     APP_LOG( APP_LOG_LEVEL_INFO, "CONNECTION_HANDLER: Connection status changed %d", connected );
   #endif
 }
+#endif
 
 static void handler_battery_service ( BatteryChargeState status ) {
   s_battery_percentage = status.charge_percent;
